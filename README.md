@@ -239,6 +239,22 @@ pnpm test:watch
 pnpm test:cov
 ```
 
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before submitting pull requests.
+
+### Quick Start for Contributors
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests and linting (`pnpm test && pnpm lint:check`)
+5. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+For detailed guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 MIT © Shironex

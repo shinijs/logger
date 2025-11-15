@@ -2,6 +2,56 @@
 
 Get up and running with `@shinijs/logger` in your NestJS application.
 
+## Quick Start
+
+The fastest way to get started with `@shinijs/logger`:
+
+### 1. Install the package
+
+```bash
+pnpm add @shinijs/logger pino pino-pretty
+```
+
+### 2. Add to your AppModule
+
+```typescript
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { LoggerModule } from '@shinijs/logger';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    LoggerModule, // That's it! Logger is now available globally
+  ],
+})
+export class AppModule {}
+```
+
+### 3. Use in your services
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { CustomLogger } from '@shinijs/logger';
+
+@Injectable()
+export class MyService {
+  constructor(private readonly logger: CustomLogger) {
+    this.logger.setContext('MyService');
+  }
+
+  doSomething() {
+    this.logger.info('Doing something...');
+    this.logger.debug('Debug information', { key: 'value' });
+    this.logger.error('Error occurred', error);
+  }
+}
+```
+
+**That's it!** The logger is ready to use. See [Configuration](#configuration) below for customization options.
+
 ## Installation
 
 Install the package and its peer dependencies:

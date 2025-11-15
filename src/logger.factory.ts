@@ -19,7 +19,11 @@ export class ContextBoundLogger implements ILogger, LoggerService {
   // Overloaded methods to support both ILogger and LoggerService signatures
   error(message: string, error?: Error | unknown, context?: LogContext): void;
   error(message: any, trace?: string, context?: string): void;
-  error(message: any, errorOrTrace?: Error | unknown | string, context?: LogContext | string): void {
+  error(
+    message: any,
+    errorOrTrace?: Error | unknown | string,
+    context?: LogContext | string,
+  ): void {
     const ctx = typeof context === 'string' ? context : (context as LogContext) || this.context;
     if (typeof errorOrTrace === 'string') {
       // LoggerService signature: error(message, trace?, context?)
@@ -35,7 +39,7 @@ export class ContextBoundLogger implements ILogger, LoggerService {
   warn(message: any, metaOrContext?: Record<string, unknown> | string, context?: LogContext): void {
     // Ensure message is a string
     const messageStr = typeof message === 'string' ? message : String(message);
-    
+
     if (metaOrContext === undefined && context === undefined) {
       // LoggerService signature: warn(message) - single argument, use bound context
       this.baseLogger.warn(messageStr, undefined, this.context);
@@ -54,7 +58,11 @@ export class ContextBoundLogger implements ILogger, LoggerService {
 
   debug(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
   debug(message: any, context?: string): void;
-  debug(message: any, metaOrContext?: Record<string, unknown> | string, context?: LogContext): void {
+  debug(
+    message: any,
+    metaOrContext?: Record<string, unknown> | string,
+    context?: LogContext,
+  ): void {
     if (typeof metaOrContext === 'string') {
       // LoggerService signature: debug?(message, context?)
       this.baseLogger.debug(message, undefined, metaOrContext || this.context);
@@ -66,7 +74,11 @@ export class ContextBoundLogger implements ILogger, LoggerService {
 
   verbose(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
   verbose(message: any, context?: string): void;
-  verbose(message: any, metaOrContext?: Record<string, unknown> | string, context?: LogContext): void {
+  verbose(
+    message: any,
+    metaOrContext?: Record<string, unknown> | string,
+    context?: LogContext,
+  ): void {
     if (typeof metaOrContext === 'string') {
       // LoggerService signature: verbose?(message, context?)
       this.baseLogger.verbose(message, undefined, metaOrContext || this.context);

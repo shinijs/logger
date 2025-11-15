@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/shinijs/logger.git"
   },
-  "homepage": "https://github.com/shinijs/logger#readme",
+  "homepage": "https://shinijs.github.io/logger/",
   "bugs": {
     "url": "https://github.com/shinijs/logger/issues"
   },
@@ -31,6 +31,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "prepublishOnly": "pnpm build",
     "prepare": "husky || true"
   },
@@ -78,6 +81,7 @@
     "prettier": "^3.4.2",
     "reflect-metadata": "^0.2.2",
     "ts-jest": "^29.4.5",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitepress": "^1.5.0"
   }
 }

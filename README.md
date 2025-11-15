@@ -3,6 +3,9 @@
 > Pino-based structured logger for NestJS applications with file rotation and pretty printing
 
 [![CI](https://github.com/shinijs/logger/actions/workflows/ci.yml/badge.svg)](https://github.com/shinijs/logger/actions/workflows/ci.yml)
+[![Documentation](https://img.shields.io/badge/docs-vitepress-blue)](https://shinijs.github.io/logger/)
+
+📚 **[Full Documentation](https://shinijs.github.io/logger/)** | [API Reference](https://shinijs.github.io/logger/api/logger-module) | [Examples](https://shinijs.github.io/logger/guide/examples)
 
 ## Features
 
@@ -238,6 +241,16 @@ pnpm test:watch
 # Coverage
 pnpm test:cov
 ```
+
+## Documentation
+
+📚 **[Full Documentation](https://shinijs.github.io/logger/)** is available with:
+
+- Complete API reference
+- Configuration guide
+- Usage examples
+- Best practices
+- Advanced patterns
 
 ## Contributing
 

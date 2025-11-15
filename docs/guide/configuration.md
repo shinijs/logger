@@ -82,8 +82,8 @@ When disabled (production), logs are output as JSON:
 When `LOG_FILE_ENABLED=true`:
 
 - Logs are written to files in the directory specified by `LOG_FILE_PATH`
-- Files are automatically rotated daily
-- File naming: `app-YYYY-MM-DD.log`
+- **File logging works simultaneously with pretty printing** - you can have both console output (with pretty formatting) and file logging enabled at the same time
+- Files are named: `app.log` (single file, not rotated by default)
 - Directory is created automatically if it doesn't exist
 
 See [File Rotation](/advanced/file-rotation) for more details.

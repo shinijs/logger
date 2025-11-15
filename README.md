@@ -113,7 +113,7 @@ verbose(message: string, metadata?: object): void
 
 ### LoggerFactory
 
-Factory for creating context-bound loggers.
+Factory for creating context-bound loggers. The `ContextBoundLogger` implements NestJS `LoggerService` for full compatibility.
 
 ```typescript
 import { LoggerFactory } from '@shinijs/logger';
@@ -124,6 +124,7 @@ export class MyService {
 
   doWork() {
     this.logger.log('Working...');
+    // ContextBoundLogger implements LoggerService, so it works with NestJS's standard logger interface
   }
 }
 ```
@@ -184,6 +185,48 @@ this.logger.log('Request processed', {
 });
 ```
 
+### Integrating with Rate Limit Module
+
+Use the logger with `@shinijs/rate-limit` for consistent logging:
+
+```typescript
+import { Module, Global } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { LoggerModule, LoggerFactory } from '@shinijs/logger';
+import { RateLimitModule } from '@shinijs/rate-limit';
+
+// Token for RateLimit logger provider
+export const RATE_LIMIT_LOGGER_TOKEN = Symbol('RATE_LIMIT_LOGGER');
+
+// Create a global module to provide the logger token
+@Global()
+@Module({
+  providers: [
+    {
+      provide: RATE_LIMIT_LOGGER_TOKEN,
+      useFactory: (loggerFactory: LoggerFactory) => {
+        return loggerFactory.createLogger('RateLimit');
+      },
+      inject: [LoggerFactory],
+    },
+  ],
+  exports: [RATE_LIMIT_LOGGER_TOKEN],
+})
+class RateLimitLoggerModule {}
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    LoggerModule,
+    RateLimitLoggerModule,
+    RateLimitModule.forRoot({
+      loggerToken: RATE_LIMIT_LOGGER_TOKEN,
+    }),
+  ],
+})
+export class AppModule {}
+```
+
 ## Configuration Options
 
 ### Environment Variables
@@ -206,14 +249,15 @@ From lowest to highest priority:
 - `error` - Error messages
 - `fatal` - Fatal errors
 
-## File Rotation
+## File Logging
 
 When file logging is enabled:
 
-- Logs are rotated daily
-- Files are named: `app-YYYY-MM-DD.log`
-- Old logs are automatically managed
-- Directory is created if it doesn't exist
+- Logs are written to files in the specified directory
+- **File logging works simultaneously with pretty printing** - you can have both console output and file logging in development
+- Files are named: `app.log` (single file, not rotated by default)
+- Directory is created automatically if it doesn't exist
+- Configure via `LOG_FILE_ENABLED=true` and `LOG_FILE_PATH=./logs`
 
 ## Development vs Production
 

@@ -129,6 +129,7 @@ The configuration values are not validated at runtime. Ensure:
 - `level` is a valid log level
 - `filePath` is a valid directory path
 - `prettyPrint` and `fileEnabled` are boolean values
+- **File logging works simultaneously with pretty printing** - when both are enabled, logs are written to both the console (with pretty formatting) and to the log file
 
 ## See Also
 

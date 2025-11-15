@@ -57,18 +57,33 @@ baseLogger.setContext('Global');
 
 ## ContextBoundLogger
 
-The logger returned by `createLogger()` is a context-bound logger with an immutable context.
+The logger returned by `createLogger()` is a context-bound logger with an immutable context. **It implements NestJS `LoggerService`** for full compatibility with NestJS's standard logger interface.
 
 ### Methods
 
-All logging methods are available with the same signatures as `CustomLogger`:
+All logging methods are available with the same signatures as `CustomLogger`, plus support for NestJS `LoggerService` signatures:
 
 - `log(message: string, context?: string): void`
 - `info(message: string, meta?: Record<string, unknown>, context?: LogContext): void`
 - `error(message: string, error?: Error | unknown, context?: LogContext): void`
 - `warn(message: string, meta?: Record<string, unknown>, context?: LogContext): void`
 - `debug(message: string, meta?: Record<string, unknown>, context?: LogContext): void`
+- `verbose(message: string, meta?: Record<string, unknown>, context?: LogContext): void`
 - `getContext(): string` - Returns the bound context
+- `setContext(context: string): void` - No-op (context is immutable)
+
+### NestJS LoggerService Compatibility
+
+`ContextBoundLogger` implements `LoggerService`, making it compatible with any NestJS module that accepts a logger:
+
+```typescript
+import { LoggerService } from '@nestjs/common';
+import { LoggerFactory } from '@shinijs/logger';
+
+const logger = LoggerFactory.createLogger('MyService');
+// logger implements LoggerService
+const nestLogger: LoggerService = logger; // ✅ Type-safe
+```
 
 ### Immutable Context
 

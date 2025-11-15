@@ -24,8 +24,50 @@ export class CustomLogger implements ILogger, LoggerService {
       level: this.config.level,
     };
 
+    // Setup file logging if enabled
+    if (this.config.fileEnabled) {
+      const logDir = this.config.filePath;
+      if (!existsSync(logDir)) {
+        mkdirSync(logDir, { recursive: true });
+      }
+    }
+
     // Pretty print in development (synchronous for better compatibility with NestJS)
     if (this.config.prettyPrint) {
+      // If file logging is also enabled, use multi-stream transport
+      if (this.config.fileEnabled) {
+        const targets: pino.TransportTargetOptions[] = [
+          {
+            target: 'pino-pretty',
+            level: this.config.level,
+            options: {
+              colorize: true,
+              translateTime: 'HH:MM:ss',
+              ignore: 'pid,hostname',
+              singleLine: false,
+              levelFirst: true,
+              messageFormat: '{context} {msg}',
+            },
+          },
+          {
+            target: 'pino/file',
+            level: this.config.level,
+            options: {
+              destination: join(this.config.filePath, 'app.log'),
+              mkdir: true,
+            },
+          },
+        ];
+
+        return pino({
+          ...pinoOptions,
+          transport: {
+            targets,
+          },
+        });
+      }
+
+      // Pretty print only (no file logging)
       const prettyStream = pinoPretty({
         colorize: true,
         translateTime: 'HH:MM:ss',
@@ -38,7 +80,7 @@ export class CustomLogger implements ILogger, LoggerService {
       return pino(pinoOptions, prettyStream);
     }
 
-    // Production or file logging
+    // Production or file logging (no pretty print)
     const targets: pino.TransportTargetOptions[] = [];
 
     targets.push({
@@ -49,16 +91,11 @@ export class CustomLogger implements ILogger, LoggerService {
 
     // File transport if enabled
     if (this.config.fileEnabled) {
-      const logDir = this.config.filePath;
-      if (!existsSync(logDir)) {
-        mkdirSync(logDir, { recursive: true });
-      }
-
       targets.push({
         target: 'pino/file',
         level: this.config.level,
         options: {
-          destination: join(logDir, 'app.log'),
+          destination: join(this.config.filePath, 'app.log'),
           mkdir: true,
         },
       });

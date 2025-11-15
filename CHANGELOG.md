@@ -1,4 +1,4 @@
-# @shini/logger
+# @shinijs/logger
 
 ## 1.0.0
 

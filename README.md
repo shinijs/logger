@@ -1,8 +1,8 @@
-# @shini/logger
+# @shinijs/logger
 
 > Pino-based structured logger for NestJS applications with file rotation and pretty printing
 
-[![CI](https://github.com/Shironex/shini-logger/actions/workflows/ci.yml/badge.svg)](https://github.com/Shironex/shini-logger/actions/workflows/ci.yml)
+[![CI](https://github.com/shinijs/logger/actions/workflows/ci.yml/badge.svg)](https://github.com/shinijs/logger/actions/workflows/ci.yml)
 
 ## Features
 
@@ -17,7 +17,7 @@
 ## Installation
 
 ```bash
-pnpm add @shini/logger pino pino-pretty
+pnpm add @shinijs/logger pino pino-pretty
 ```
 
 ## Quick Start
@@ -25,7 +25,7 @@ pnpm add @shini/logger pino pino-pretty
 ### 1. Import the Module
 
 ```typescript
-import { LoggerModule } from '@shini/logger';
+import { LoggerModule } from '@shinijs/logger';
 
 @Module({
   imports: [LoggerModule],
@@ -37,7 +37,7 @@ export class AppModule {}
 ### 2. Use the Logger
 
 ```typescript
-import { CustomLogger } from '@shini/logger';
+import { CustomLogger } from '@shinijs/logger';
 
 @Injectable()
 export class YourService {
@@ -93,7 +93,7 @@ verbose(message: string, metadata?: object): void
 Factory for creating context-bound loggers.
 
 ```typescript
-import { LoggerFactory } from '@shini/logger';
+import { LoggerFactory } from '@shinijs/logger';
 
 @Injectable()
 export class MyService {
@@ -110,7 +110,7 @@ export class MyService {
 ### Basic Logging
 
 ```typescript
-import { CustomLogger } from '@shini/logger';
+import { CustomLogger } from '@shinijs/logger';
 
 @Injectable()
 export class UserService {
@@ -136,7 +136,7 @@ export class UserService {
 ### Using Logger Factory
 
 ```typescript
-import { LoggerFactory } from '@shini/logger';
+import { LoggerFactory } from '@shinijs/logger';
 
 export class SomeClass {
   private readonly logger = LoggerFactory.createLogger('SomeClass');

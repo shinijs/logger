@@ -1,5 +1,5 @@
 {
-  "name": "@shini/logger",
+  "name": "@shinijs/logger",
   "version": "1.0.0",
   "description": "Pino-based structured logger for NestJS applications with file rotation and pretty printing",
   "main": "./dist/index.js",
@@ -9,11 +9,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Shironex/shini-logger.git"
+    "url": "git+https://github.com/shinijs/logger.git"
   },
-  "homepage": "https://github.com/Shironex/shini-logger#readme",
+  "homepage": "https://github.com/shinijs/logger#readme",
   "bugs": {
-    "url": "https://github.com/Shironex/shini-logger/issues"
+    "url": "https://github.com/shinijs/logger/issues"
   },
   "files": [
     "dist/**/*",

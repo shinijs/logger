@@ -153,7 +153,7 @@ export class CustomLogger implements ILogger, LoggerService {
 
   warn(message: string, meta?: Record<string, unknown>, context?: LogContext): void {
     const logObj = this.formatMessage(message, context);
-    this.pino.warn({ ...logObj, ...meta }, message);
+    this.pino.warn(meta ? { ...logObj, ...meta } : logObj, message);
   }
 
   debug(message: string, meta?: Record<string, unknown>, context?: LogContext): void {

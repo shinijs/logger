@@ -20,6 +20,26 @@
 pnpm add @shinijs/logger pino pino-pretty
 ```
 
+### Peer Dependencies
+
+This package requires the following peer dependencies to be installed in your project:
+
+| Package | Version | Required |
+|---------|---------|----------|
+| `@nestjs/common` | `^11.0.0` | Yes |
+| `@nestjs/config` | `^4.0.0` | Yes |
+| `pino` | `^10.0.0` | Yes |
+| `pino-pretty` | `^13.0.0` | Yes |
+| `reflect-metadata` | `^0.2.0` | Yes |
+
+**Install all peer dependencies:**
+
+```bash
+pnpm add @nestjs/common@^11.0.0 @nestjs/config@^4.0.0 pino@^10.0.0 pino-pretty@^13.0.0 reflect-metadata@^0.2.0
+```
+
+**Note:** If you're already using NestJS, you likely have `@nestjs/common`, `@nestjs/config`, and `reflect-metadata` installed. You only need to ensure `pino` and `pino-pretty` are present.
+
 ## Quick Start
 
 ### 1. Import the Module

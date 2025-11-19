@@ -5,6 +5,11 @@ export interface LoggerConfig {
   prettyPrint: boolean;
   fileEnabled: boolean;
   filePath: string;
+  fileRotationEnabled: boolean;
+  fileRotationFrequency: 'daily' | 'hourly' | 'custom';
+  fileRotationPattern: string;
+  fileMaxFiles: number;
+  fileSizeLimit: string;
 }
 
 const VALID_LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'] as const;

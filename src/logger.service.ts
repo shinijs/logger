@@ -29,7 +29,6 @@ export class CustomLogger implements ILogger, LoggerService {
     };
   }
 
-  // @ts-expect-error - Method will be used in next task
   private createFileTransport(): pino.TransportTargetOptions {
     if (this.config.fileRotationEnabled) {
       return {
@@ -84,14 +83,7 @@ export class CustomLogger implements ILogger, LoggerService {
               messageFormat: '{context} {msg}',
             },
           },
-          {
-            target: 'pino/file',
-            level: this.config.level,
-            options: {
-              destination: join(this.config.filePath, 'app.log'),
-              mkdir: true,
-            },
-          },
+          this.createFileTransport(),
         ];
 
         return pino({
@@ -126,14 +118,7 @@ export class CustomLogger implements ILogger, LoggerService {
 
     // File transport if enabled
     if (this.config.fileEnabled) {
-      targets.push({
-        target: 'pino/file',
-        level: this.config.level,
-        options: {
-          destination: join(this.config.filePath, 'app.log'),
-          mkdir: true,
-        },
-      });
+      targets.push(this.createFileTransport());
     }
 
     return pino({

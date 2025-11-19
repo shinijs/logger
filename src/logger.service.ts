@@ -28,7 +28,12 @@ export class CustomLogger implements ILogger, LoggerService {
     if (this.config.fileEnabled) {
       const logDir = this.config.filePath;
       if (!existsSync(logDir)) {
-        mkdirSync(logDir, { recursive: true });
+        try {
+          mkdirSync(logDir, { recursive: true });
+        } catch (error) {
+          console.error(`Failed to create log directory: ${logDir}`, error);
+          // Continue without file logging if directory creation fails
+        }
       }
     }
 
@@ -153,7 +158,7 @@ export class CustomLogger implements ILogger, LoggerService {
 
   warn(message: string, meta?: Record<string, unknown>, context?: LogContext): void {
     const logObj = this.formatMessage(message, context);
-    this.pino.warn(meta ? { ...logObj, ...meta } : logObj, message);
+    this.pino.warn({ ...logObj, ...meta }, message);
   }
 
   debug(message: string, meta?: Record<string, unknown>, context?: LogContext): void {

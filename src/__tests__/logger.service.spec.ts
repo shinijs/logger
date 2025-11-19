@@ -617,4 +617,152 @@ describe('CustomLogger', () => {
       expect(options.dateFormat).toBe('YYYY-MM-DD-HH');
     });
   });
+
+  describe('createFileTransport', () => {
+    it('should return pino-roll transport when rotation enabled', async () => {
+      const config = createMockConfig({
+        fileEnabled: true,
+        fileRotationEnabled: true,
+        filePath: './test-logs',
+        level: 'info',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      const logger = module.get<CustomLogger>(CustomLogger);
+      const transport = (logger as any).createFileTransport();
+
+      expect(transport.target).toBe('pino-roll');
+      expect(transport.level).toBe('info');
+      expect(transport.options).toEqual({
+        file: join('./test-logs', 'app'),
+        frequency: 'daily',
+        dateFormat: 'YYYY-MM-DD',
+        maxFiles: 7,
+        size: '10M',
+      });
+    });
+
+    it('should return pino/file transport when rotation disabled', async () => {
+      const config = createMockConfig({
+        fileEnabled: true,
+        fileRotationEnabled: false,
+        filePath: './test-logs',
+        level: 'debug',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      const logger = module.get<CustomLogger>(CustomLogger);
+      const transport = (logger as any).createFileTransport();
+
+      expect(transport.target).toBe('pino/file');
+      expect(transport.level).toBe('debug');
+      expect(transport.options).toEqual({
+        destination: join('./test-logs', 'app.log'),
+        mkdir: true,
+      });
+    });
+
+    it('should include correct level in transport', async () => {
+      const config = createMockConfig({
+        fileEnabled: true,
+        fileRotationEnabled: true,
+        level: 'warn',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      const logger = module.get<CustomLogger>(CustomLogger);
+      const transport = (logger as any).createFileTransport();
+
+      expect(transport.level).toBe('warn');
+    });
+
+    it('should include rotation options when enabled', async () => {
+      const config = createMockConfig({
+        fileEnabled: true,
+        fileRotationEnabled: true,
+        filePath: './custom-logs',
+        fileRotationFrequency: 'hourly',
+        fileRotationPattern: 'YYYY-MM-DD-HH',
+        fileMaxFiles: 14,
+        fileSizeLimit: '20M',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      const logger = module.get<CustomLogger>(CustomLogger);
+      const transport = (logger as any).createFileTransport();
+
+      expect(transport.options).toEqual({
+        file: join('./custom-logs', 'app'),
+        frequency: 'hourly',
+        dateFormat: 'YYYY-MM-DD-HH',
+        maxFiles: 14,
+        size: '20M',
+      });
+    });
+
+    it('should include single file destination when disabled', async () => {
+      const config = createMockConfig({
+        fileEnabled: true,
+        fileRotationEnabled: false,
+        filePath: './single-file-logs',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      const logger = module.get<CustomLogger>(CustomLogger);
+      const transport = (logger as any).createFileTransport();
+
+      expect(transport.options.destination).toBe(join('./single-file-logs', 'app.log'));
+      expect(transport.options.mkdir).toBe(true);
+    });
+  });
 });

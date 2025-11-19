@@ -111,4 +111,63 @@ describe('CustomLogger Property-Based Tests', () => {
       );
     });
   });
+
+  /**
+   * Feature: log-file-rotation, Property 4: Rotation disabled uses single file transport
+   * Validates: Requirements 2.1, 4.3
+   *
+   * When LOG_FILE_ROTATION_ENABLED is explicitly set to false, the file transport
+   * configuration should use pino/file target with destination app.log instead of pino-roll.
+   */
+  describe('Property 4: Rotation disabled uses single file transport', () => {
+    it('should use pino/file transport with app.log destination when rotation is disabled', async () => {
+      await fc.assert(
+        fc.asyncProperty(
+          fc.record({
+            filePath: fc.oneof(
+              fc.constant('./logs'),
+              fc.constant('/var/log/app'),
+              fc.constant('./test-logs'),
+              fc.constant('/tmp/logs'),
+            ),
+            level: fc.constantFrom('trace', 'debug', 'info', 'warn', 'error', 'fatal'),
+          }),
+          async (testConfig) => {
+            const config = {
+              level: testConfig.level,
+              prettyPrint: false,
+              fileEnabled: true,
+              filePath: testConfig.filePath,
+              fileRotationEnabled: false,
+              fileRotationFrequency: 'daily' as const,
+              fileRotationPattern: 'YYYY-MM-DD',
+              fileMaxFiles: 7,
+              fileSizeLimit: '10M',
+            };
+
+            const module: TestingModule = await Test.createTestingModule({
+              imports: [ConfigModule.forFeature(loggerConfig)],
+              providers: [
+                {
+                  provide: loggerConfig.KEY,
+                  useValue: config,
+                },
+                CustomLogger,
+              ],
+            }).compile();
+
+            const logger = module.get<CustomLogger>(CustomLogger);
+            const transport = (logger as any).createFileTransport();
+
+            // Verify transport uses pino/file instead of pino-roll
+            expect(transport.target).toBe('pino/file');
+            expect(transport.level).toBe(testConfig.level);
+            expect(transport.options.destination).toBe(join(testConfig.filePath, 'app.log'));
+            expect(transport.options.mkdir).toBe(true);
+          },
+        ),
+        { numRuns: 100 },
+      );
+    });
+  });
 });

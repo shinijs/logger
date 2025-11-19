@@ -19,7 +19,6 @@ export class CustomLogger implements ILogger, LoggerService {
     this.pino = this.createPinoLogger();
   }
 
-  // @ts-expect-error - Method will be used in next task
   private getRotationOptions() {
     return {
       file: join(this.config.filePath, 'app'),
@@ -28,6 +27,26 @@ export class CustomLogger implements ILogger, LoggerService {
       maxFiles: this.config.fileMaxFiles,
       size: this.config.fileSizeLimit,
     };
+  }
+
+  // @ts-expect-error - Method will be used in next task
+  private createFileTransport(): pino.TransportTargetOptions {
+    if (this.config.fileRotationEnabled) {
+      return {
+        target: 'pino-roll',
+        level: this.config.level,
+        options: this.getRotationOptions(),
+      };
+    } else {
+      return {
+        target: 'pino/file',
+        level: this.config.level,
+        options: {
+          destination: join(this.config.filePath, 'app.log'),
+          mkdir: true,
+        },
+      };
+    }
   }
 
   private createPinoLogger(): pino.Logger {

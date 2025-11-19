@@ -1,9 +1,9 @@
-import { Injectable, Inject, LoggerService } from '@nestjs/common';
-import type { ConfigType } from '@nestjs/config';
+import { Injectable, LoggerService } from '@nestjs/common';
 import { CustomLogger } from './logger.service';
-import loggerConfig from './logger.config';
 import { ILogger, LogContext } from './logger.interface';
 
+// Note: The 'any' types in method overloads below are intentional for NestJS LoggerService compatibility
+/* eslint-disable @typescript-eslint/no-explicit-any */
 @Injectable()
 export class ContextBoundLogger implements ILogger, LoggerService {
   constructor(
@@ -88,6 +88,10 @@ export class ContextBoundLogger implements ILogger, LoggerService {
     }
   }
 
+  fatal(message: string, meta?: Record<string, unknown>, context?: LogContext): void {
+    this.baseLogger.fatal(message, meta, context || this.context);
+  }
+
   setContext(_context: string): void {
     // This method exists for compatibility but doesn't change the bound context
     // The context is immutable once the logger is created
@@ -97,14 +101,11 @@ export class ContextBoundLogger implements ILogger, LoggerService {
     return this.context;
   }
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 @Injectable()
 export class LoggerFactory {
-  constructor(
-    @Inject(loggerConfig.KEY)
-    private readonly config: ConfigType<typeof loggerConfig>,
-    private readonly baseLogger: CustomLogger,
-  ) {}
+  constructor(private readonly baseLogger: CustomLogger) {}
 
   /**
    * Creates a context-bound logger instance that automatically applies

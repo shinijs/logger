@@ -4,8 +4,8 @@ import * as path from 'path';
 /**
  * Feature: log-file-rotation, Property 8: Package dependency configuration
  * Validates: Requirements 8.1, 8.2
- * 
- * Property: The package.json file should list `pino-roll` with version constraint `^4.0.0` 
+ *
+ * Property: The package.json file should list `pino-roll` with version constraint `^4.0.0`
  * in the peerDependencies section.
  */
 describe('Package Configuration Property Tests', () => {
@@ -41,24 +41,24 @@ describe('Package Configuration Property Tests', () => {
     /**
      * Property-based test: For any valid package.json structure,
      * the pino-roll peer dependency should be present and correctly versioned.
-     * 
+     *
      * This test runs multiple assertions to verify the universal property
      * that the package configuration meets requirements 8.1 and 8.2.
      */
     it('should maintain pino-roll peer dependency configuration across package updates', () => {
       // Run multiple checks to ensure the property holds
       const iterations = 100;
-      
+
       for (let i = 0; i < iterations; i++) {
         // Verify the property holds: pino-roll must be in peerDependencies
         expect(packageJson.peerDependencies).toHaveProperty('pino-roll');
-        
+
         // Verify the version constraint is exactly ^4.0.0
         expect(packageJson.peerDependencies['pino-roll']).toBe('^4.0.0');
-        
+
         // Verify it's a string (not null, undefined, or other type)
         expect(typeof packageJson.peerDependencies['pino-roll']).toBe('string');
-        
+
         // Verify the version format is valid semver with caret
         expect(packageJson.peerDependencies['pino-roll']).toMatch(/^\^[0-9]+\.[0-9]+\.[0-9]+$/);
       }
@@ -71,10 +71,10 @@ describe('Package Configuration Property Tests', () => {
         'pino',
         'pino-pretty',
         'pino-roll',
-        'reflect-metadata'
+        'reflect-metadata',
       ];
 
-      requiredPeerDeps.forEach(dep => {
+      requiredPeerDeps.forEach((dep) => {
         expect(packageJson.peerDependencies).toHaveProperty(dep);
       });
     });

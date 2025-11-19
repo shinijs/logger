@@ -162,6 +162,7 @@ describe('CustomLogger', () => {
         fileEnabled: true,
         filePath: './test-logs',
         prettyPrint: false,
+        fileRotationEnabled: true,
       });
       mockExistsSync.mockReturnValue(true);
 
@@ -185,10 +186,10 @@ describe('CustomLogger', () => {
           transport: expect.objectContaining({
             targets: expect.arrayContaining([
               expect.objectContaining({
-                target: 'pino/file',
+                target: 'pino-roll',
                 options: expect.objectContaining({
-                  destination: join('./test-logs', 'app.log'),
-                  mkdir: true,
+                  file: join('./test-logs', 'app'),
+                  frequency: 'daily',
                 }),
               }),
             ]),
@@ -615,6 +616,186 @@ describe('CustomLogger', () => {
       const options = (logger as any).getRotationOptions();
 
       expect(options.dateFormat).toBe('YYYY-MM-DD-HH');
+    });
+  });
+
+  describe('createPinoLogger with rotation', () => {
+    it('should create logger with rotation enabled', async () => {
+      const config = createMockConfig({
+        fileEnabled: true,
+        fileRotationEnabled: true,
+        prettyPrint: false,
+        filePath: './test-logs',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      await module.get<CustomLogger>(CustomLogger);
+
+      expect(pino).toHaveBeenCalledWith(
+        expect.objectContaining({
+          level: 'info',
+          transport: expect.objectContaining({
+            targets: expect.arrayContaining([
+              expect.objectContaining({
+                target: 'pino/file',
+                options: { destination: 1 },
+              }),
+              expect.objectContaining({
+                target: 'pino-roll',
+                level: 'info',
+                options: expect.objectContaining({
+                  file: join('./test-logs', 'app'),
+                  frequency: 'daily',
+                }),
+              }),
+            ]),
+          }),
+        }),
+      );
+    });
+
+    it('should create logger with rotation disabled', async () => {
+      const config = createMockConfig({
+        fileEnabled: true,
+        fileRotationEnabled: false,
+        prettyPrint: false,
+        filePath: './test-logs',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      await module.get<CustomLogger>(CustomLogger);
+
+      expect(pino).toHaveBeenCalledWith(
+        expect.objectContaining({
+          level: 'info',
+          transport: expect.objectContaining({
+            targets: expect.arrayContaining([
+              expect.objectContaining({
+                target: 'pino/file',
+                options: { destination: 1 },
+              }),
+              expect.objectContaining({
+                target: 'pino/file',
+                level: 'info',
+                options: expect.objectContaining({
+                  destination: join('./test-logs', 'app.log'),
+                  mkdir: true,
+                }),
+              }),
+            ]),
+          }),
+        }),
+      );
+    });
+
+    it('should create multi-stream with pretty print and rotation', async () => {
+      const config = createMockConfig({
+        fileEnabled: true,
+        fileRotationEnabled: true,
+        prettyPrint: true,
+        filePath: './test-logs',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      await module.get<CustomLogger>(CustomLogger);
+
+      expect(pino).toHaveBeenCalledWith(
+        expect.objectContaining({
+          level: 'info',
+          transport: expect.objectContaining({
+            targets: expect.arrayContaining([
+              expect.objectContaining({
+                target: 'pino-pretty',
+                level: 'info',
+              }),
+              expect.objectContaining({
+                target: 'pino-roll',
+                level: 'info',
+                options: expect.objectContaining({
+                  file: join('./test-logs', 'app'),
+                  frequency: 'daily',
+                }),
+              }),
+            ]),
+          }),
+        }),
+      );
+    });
+
+    it('should create production mode with rotation', async () => {
+      const config = createMockConfig({
+        fileEnabled: true,
+        fileRotationEnabled: true,
+        prettyPrint: false,
+        filePath: './prod-logs',
+        level: 'warn',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      await module.get<CustomLogger>(CustomLogger);
+
+      expect(pino).toHaveBeenCalledWith(
+        expect.objectContaining({
+          level: 'warn',
+          transport: expect.objectContaining({
+            targets: expect.arrayContaining([
+              expect.objectContaining({
+                target: 'pino/file',
+                level: 'warn',
+                options: { destination: 1 },
+              }),
+              expect.objectContaining({
+                target: 'pino-roll',
+                level: 'warn',
+                options: expect.objectContaining({
+                  file: join('./prod-logs', 'app'),
+                  frequency: 'daily',
+                }),
+              }),
+            ]),
+          }),
+        }),
+      );
     });
   });
 

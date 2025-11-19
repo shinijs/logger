@@ -29,6 +29,8 @@ export interface ILogger {
   warn(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
   info(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
   debug(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
+  verbose(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
+  fatal(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
   setContext(context: string): void;
   getContext(): string;
 }

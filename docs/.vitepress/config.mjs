@@ -15,12 +15,12 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'API', link: '/api/logger-module' },
       { text: 'Examples', link: '/guide/examples' },
+      { text: 'Changelog', link: '/changelog' },
       {
         text: 'Links',
         items: [
           { text: 'GitHub', link: 'https://github.com/shinijs/logger' },
           { text: 'npm', link: 'https://www.npmjs.com/package/@shinijs/logger' },
-          { text: 'Changelog', link: 'https://github.com/shinijs/logger/blob/master/CHANGELOG.md' },
         ],
       },
     ],

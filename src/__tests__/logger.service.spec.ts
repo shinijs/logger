@@ -23,6 +23,11 @@ describe('CustomLogger', () => {
     prettyPrint: false,
     fileEnabled: false,
     filePath: './logs',
+    fileRotationEnabled: true,
+    fileRotationFrequency: 'daily' as const,
+    fileRotationPattern: 'YYYY-MM-DD',
+    fileMaxFiles: 7,
+    fileSizeLimit: '10M',
     ...overrides,
   });
 
@@ -510,6 +515,106 @@ describe('CustomLogger', () => {
         }),
         'test message',
       );
+    });
+  });
+
+  describe('getRotationOptions', () => {
+    it('should return rotation options matching configuration values', async () => {
+      const config = createMockConfig({
+        filePath: './test-logs',
+        fileRotationFrequency: 'daily',
+        fileRotationPattern: 'YYYY-MM-DD',
+        fileMaxFiles: 7,
+        fileSizeLimit: '10M',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      const logger = module.get<CustomLogger>(CustomLogger);
+      const options = (logger as any).getRotationOptions();
+
+      expect(options).toEqual({
+        file: join('./test-logs', 'app'),
+        frequency: 'daily',
+        dateFormat: 'YYYY-MM-DD',
+        maxFiles: 7,
+        size: '10M',
+      });
+    });
+
+    it('should construct file path correctly', async () => {
+      const config = createMockConfig({
+        filePath: '/var/log/myapp',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      const logger = module.get<CustomLogger>(CustomLogger);
+      const options = (logger as any).getRotationOptions();
+
+      expect(options.file).toBe(join('/var/log/myapp', 'app'));
+    });
+
+    it('should map frequency correctly', async () => {
+      const config = createMockConfig({
+        fileRotationFrequency: 'hourly',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      const logger = module.get<CustomLogger>(CustomLogger);
+      const options = (logger as any).getRotationOptions();
+
+      expect(options.frequency).toBe('hourly');
+    });
+
+    it('should map pattern correctly', async () => {
+      const config = createMockConfig({
+        fileRotationPattern: 'YYYY-MM-DD-HH',
+      });
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [ConfigModule.forFeature(loggerConfig)],
+        providers: [
+          {
+            provide: loggerConfig.KEY,
+            useValue: config,
+          },
+          CustomLogger,
+        ],
+      }).compile();
+
+      const logger = module.get<CustomLogger>(CustomLogger);
+      const options = (logger as any).getRotationOptions();
+
+      expect(options.dateFormat).toBe('YYYY-MM-DD-HH');
     });
   });
 });

@@ -19,6 +19,17 @@ export class CustomLogger implements ILogger, LoggerService {
     this.pino = this.createPinoLogger();
   }
 
+  // @ts-expect-error - Method will be used in next task
+  private getRotationOptions() {
+    return {
+      file: join(this.config.filePath, 'app'),
+      frequency: this.config.fileRotationFrequency,
+      dateFormat: this.config.fileRotationPattern,
+      maxFiles: this.config.fileMaxFiles,
+      size: this.config.fileSizeLimit,
+    };
+  }
+
   private createPinoLogger(): pino.Logger {
     const pinoOptions: pino.LoggerOptions = {
       level: this.config.level,

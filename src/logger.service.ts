@@ -19,6 +19,35 @@ export class CustomLogger implements ILogger, LoggerService {
     this.pino = this.createPinoLogger();
   }
 
+  private getRotationOptions() {
+    return {
+      file: join(this.config.filePath, 'app'),
+      frequency: this.config.fileRotationFrequency,
+      dateFormat: this.config.fileRotationPattern,
+      maxFiles: this.config.fileMaxFiles,
+      size: this.config.fileSizeLimit,
+    };
+  }
+
+  private createFileTransport(): pino.TransportTargetOptions {
+    if (this.config.fileRotationEnabled) {
+      return {
+        target: 'pino-roll',
+        level: this.config.level,
+        options: this.getRotationOptions(),
+      };
+    } else {
+      return {
+        target: 'pino/file',
+        level: this.config.level,
+        options: {
+          destination: join(this.config.filePath, 'app.log'),
+          mkdir: true,
+        },
+      };
+    }
+  }
+
   private createPinoLogger(): pino.Logger {
     const pinoOptions: pino.LoggerOptions = {
       level: this.config.level,
@@ -28,7 +57,12 @@ export class CustomLogger implements ILogger, LoggerService {
     if (this.config.fileEnabled) {
       const logDir = this.config.filePath;
       if (!existsSync(logDir)) {
-        mkdirSync(logDir, { recursive: true });
+        try {
+          mkdirSync(logDir, { recursive: true });
+        } catch (error) {
+          console.error(`Failed to create log directory: ${logDir}`, error);
+          // Continue without file logging if directory creation fails
+        }
       }
     }
 
@@ -49,14 +83,7 @@ export class CustomLogger implements ILogger, LoggerService {
               messageFormat: '{context} {msg}',
             },
           },
-          {
-            target: 'pino/file',
-            level: this.config.level,
-            options: {
-              destination: join(this.config.filePath, 'app.log'),
-              mkdir: true,
-            },
-          },
+          this.createFileTransport(),
         ];
 
         return pino({
@@ -91,14 +118,7 @@ export class CustomLogger implements ILogger, LoggerService {
 
     // File transport if enabled
     if (this.config.fileEnabled) {
-      targets.push({
-        target: 'pino/file',
-        level: this.config.level,
-        options: {
-          destination: join(this.config.filePath, 'app.log'),
-          mkdir: true,
-        },
-      });
+      targets.push(this.createFileTransport());
     }
 
     return pino({
@@ -153,7 +173,7 @@ export class CustomLogger implements ILogger, LoggerService {
 
   warn(message: string, meta?: Record<string, unknown>, context?: LogContext): void {
     const logObj = this.formatMessage(message, context);
-    this.pino.warn(meta ? { ...logObj, ...meta } : logObj, message);
+    this.pino.warn({ ...logObj, ...meta }, message);
   }
 
   debug(message: string, meta?: Record<string, unknown>, context?: LogContext): void {

@@ -20,7 +20,7 @@
 ## Installation
 
 ```bash
-pnpm add @shinijs/logger pino pino-pretty
+pnpm add @shinijs/logger pino pino-pretty pino-roll
 ```
 
 ### Peer Dependencies
@@ -33,15 +33,16 @@ This package requires the following peer dependencies to be installed in your pr
 | `@nestjs/config` | `^4.0.0` | Yes |
 | `pino` | `^10.0.0` | Yes |
 | `pino-pretty` | `^13.0.0` | Yes |
+| `pino-roll` | `^4.0.0` | Yes |
 | `reflect-metadata` | `^0.2.0` | Yes |
 
 **Install all peer dependencies:**
 
 ```bash
-pnpm add @nestjs/common@^11.0.0 @nestjs/config@^4.0.0 pino@^10.0.0 pino-pretty@^13.0.0 reflect-metadata@^0.2.0
+pnpm add @nestjs/common@^11.0.0 @nestjs/config@^4.0.0 pino@^10.0.0 pino-pretty@^13.0.0 pino-roll@^4.0.0 reflect-metadata@^0.2.0
 ```
 
-**Note:** If you're already using NestJS, you likely have `@nestjs/common`, `@nestjs/config`, and `reflect-metadata` installed. You only need to ensure `pino` and `pino-pretty` are present.
+**Note:** If you're already using NestJS, you likely have `@nestjs/common`, `@nestjs/config`, and `reflect-metadata` installed. You only need to ensure `pino`, `pino-pretty`, and `pino-roll` are present.
 
 ## Quick Start
 
@@ -231,12 +232,19 @@ export class AppModule {}
 
 ### Environment Variables
 
-| Variable            | Description                    | Default   |
-| ------------------- | ------------------------------ | --------- |
-| `LOG_LEVEL`         | Minimum log level              | `info`    |
-| `LOG_PRETTY_PRINT`  | Enable pretty console output   | `false`   |
-| `LOG_FILE_ENABLED`  | Enable file logging            | `false`   |
-| `LOG_FILE_PATH`     | Directory for log files        | `./logs`  |
+| Variable                      | Description                              | Default       |
+| ----------------------------- | ---------------------------------------- | ------------- |
+| `LOG_LEVEL`                   | Minimum log level                        | `info`        |
+| `LOG_PRETTY_PRINT`            | Enable pretty console output             | `false`       |
+| `LOG_FILE_ENABLED`            | Enable file logging                      | `false`       |
+| `LOG_FILE_PATH`               | Directory for log files                  | `./logs`      |
+| `LOG_FILE_ROTATION_ENABLED`   | Enable automatic log file rotation       | `true`*       |
+| `LOG_FILE_ROTATION_FREQUENCY` | Rotation frequency: `daily`, `hourly`, `custom` | `daily` |
+| `LOG_FILE_ROTATION_PATTERN`   | Date pattern for rotated filenames       | `YYYY-MM-DD`  |
+| `LOG_FILE_MAX_FILES`          | Number of log files to retain            | `7`           |
+| `LOG_FILE_SIZE_LIMIT`         | Maximum file size before rotation        | `10M`         |
+
+\* Rotation is enabled by default when `LOG_FILE_ENABLED=true`. Set to `false` to use a single log file without rotation.
 
 ### Log Levels
 
@@ -251,13 +259,134 @@ From lowest to highest priority:
 
 ## File Logging
 
-When file logging is enabled:
+When file logging is enabled, logs are written to files in the specified directory with automatic rotation and cleanup.
 
-- Logs are written to files in the specified directory
+### Basic Configuration
+
+```env
+LOG_FILE_ENABLED=true
+LOG_FILE_PATH=./logs
+```
+
+**Key Features:**
 - **File logging works simultaneously with pretty printing** - you can have both console output and file logging in development
-- Files are named: `app.log` (single file, not rotated by default)
 - Directory is created automatically if it doesn't exist
-- Configure via `LOG_FILE_ENABLED=true` and `LOG_FILE_PATH=./logs`
+- Automatic log file rotation enabled by default
+- Old log files are automatically cleaned up based on retention policy
+
+### Log Rotation
+
+Log rotation is **enabled by default** when file logging is enabled. This prevents log files from growing indefinitely and helps manage disk space.
+
+#### Daily Rotation (Default)
+
+```env
+LOG_FILE_ENABLED=true
+LOG_FILE_PATH=./logs
+LOG_FILE_ROTATION_FREQUENCY=daily
+LOG_FILE_MAX_FILES=7
+```
+
+**File naming pattern:** `app-YYYY-MM-DD.log`
+
+**Example files:**
+```
+logs/
+├── app-2024-01-15.log  (today)
+├── app-2024-01-14.log
+├── app-2024-01-13.log
+├── app-2024-01-12.log
+├── app-2024-01-11.log
+├── app-2024-01-10.log
+└── app-2024-01-09.log  (oldest, will be deleted when new day starts)
+```
+
+**Automatic cleanup:** When the 8th day arrives, the oldest file (`app-2024-01-09.log`) is automatically deleted, keeping only the most recent 7 days of logs.
+
+#### Hourly Rotation
+
+For high-traffic applications or more granular log management:
+
+```env
+LOG_FILE_ENABLED=true
+LOG_FILE_PATH=./logs
+LOG_FILE_ROTATION_FREQUENCY=hourly
+LOG_FILE_ROTATION_PATTERN=YYYY-MM-DD-HH
+LOG_FILE_MAX_FILES=24
+```
+
+**File naming pattern:** `app-YYYY-MM-DD-HH.log`
+
+**Example files:**
+```
+logs/
+├── app-2024-01-15-14.log  (current hour)
+├── app-2024-01-15-13.log
+├── app-2024-01-15-12.log
+└── ... (keeps last 24 hours)
+```
+
+#### Size-Based Rotation
+
+Rotate logs when they reach a specific size:
+
+```env
+LOG_FILE_ENABLED=true
+LOG_FILE_PATH=./logs
+LOG_FILE_SIZE_LIMIT=50M  # Rotate when file reaches 50MB
+```
+
+**Supported size units:** `K` (kilobytes), `M` (megabytes), `G` (gigabytes)
+
+#### Disabled Rotation
+
+To use a single log file without rotation (legacy behavior):
+
+```env
+LOG_FILE_ENABLED=true
+LOG_FILE_PATH=./logs
+LOG_FILE_ROTATION_ENABLED=false
+```
+
+**File naming:** `app.log` (single file, grows indefinitely)
+
+**Use case:** Suitable when you have external log management tools or limited logging needs.
+
+### Rotation Configuration Reference
+
+| Setting | Options | Description |
+|---------|---------|-------------|
+| **Frequency** | `daily`, `hourly`, `custom` | How often to create new log files |
+| **Pattern** | Date format string | Filename pattern (e.g., `YYYY-MM-DD`, `YYYY-MM-DD-HH`) |
+| **Max Files** | Number (e.g., `7`, `24`, `30`) | Number of log files to keep before deleting oldest |
+| **Size Limit** | Size string (e.g., `10M`, `50M`, `1G`) | Maximum file size before rotation |
+
+### Complete Example
+
+Production configuration with daily rotation and 30-day retention:
+
+```env
+# Basic logging
+LOG_LEVEL=info
+LOG_PRETTY_PRINT=false
+
+# File logging with rotation
+LOG_FILE_ENABLED=true
+LOG_FILE_PATH=/var/log/myapp
+
+# Rotation settings
+LOG_FILE_ROTATION_ENABLED=true
+LOG_FILE_ROTATION_FREQUENCY=daily
+LOG_FILE_ROTATION_PATTERN=YYYY-MM-DD
+LOG_FILE_MAX_FILES=30
+LOG_FILE_SIZE_LIMIT=100M
+```
+
+This configuration will:
+- Create daily log files: `app-2024-01-15.log`, `app-2024-01-14.log`, etc.
+- Keep the last 30 days of logs
+- Rotate early if a file exceeds 100MB
+- Automatically delete logs older than 30 days
 
 ## Development vs Production
 

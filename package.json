@@ -4,6 +4,14 @@
   "description": "Pino-based structured logger for NestJS applications with file rotation and pretty printing",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -56,6 +64,7 @@
     "@nestjs/config": "^4.0.0",
     "pino": "^10.0.0",
     "pino-pretty": "^13.0.0",
+    "pino-roll": "^4.0.0",
     "reflect-metadata": "^0.2.0"
   },
   "devDependencies": {
@@ -73,6 +82,7 @@
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.2.1",
+    "fast-check": "^4.3.0",
     "husky": "^9.1.7",
     "jest": "^30.2.0",
     "lint-staged": "^16.2.6",

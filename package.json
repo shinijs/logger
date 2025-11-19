@@ -1,6 +1,6 @@
 {
   "name": "@shinijs/logger",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Pino-based structured logger for NestJS applications with file rotation and pretty printing",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

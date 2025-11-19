@@ -4,6 +4,14 @@
   "description": "Pino-based structured logger for NestJS applications with file rotation and pretty printing",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },

@@ -13,6 +13,8 @@ interface ILogger {
   warn(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
   info(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
   debug(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
+  verbose(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
+  fatal(message: string, meta?: Record<string, unknown>, context?: LogContext): void;
   setContext(context: string): void;
   getContext(): string;
 }
@@ -33,17 +35,17 @@ function processWithLogger(logger: ILogger) {
 Type representing log levels.
 
 ```typescript
-type LogLevel = 'error' | 'warn' | 'info' | 'debug';
+type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 ```
 
 ### Values
 
-- `'error'` - Error messages
-- `'warn'` - Warning messages
-- `'info'` - Informational messages
+- `'trace'` - Very detailed debugging information
 - `'debug'` - Debug messages
-
-**Note:** Pino also supports `'trace'` and `'fatal'` levels, which are available through the logger methods.
+- `'info'` - Informational messages
+- `'warn'` - Warning messages
+- `'error'` - Error messages
+- `'fatal'` - Fatal errors
 
 ## LogContext
 

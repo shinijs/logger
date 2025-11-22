@@ -9,7 +9,7 @@ The fastest way to get started with `@shinijs/logger`:
 ### 1. Install the package
 
 ```bash
-pnpm add @shinijs/logger pino pino-pretty
+pnpm add @shinijs/logger pino pino-pretty pino-roll
 ```
 
 ### 2. Add to your AppModule
@@ -57,7 +57,7 @@ export class MyService {
 Install the package and its peer dependencies:
 
 ```bash
-pnpm add @shinijs/logger pino pino-pretty
+pnpm add @shinijs/logger pino pino-pretty pino-roll
 ```
 
 ### Peer Dependencies
